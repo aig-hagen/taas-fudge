@@ -158,7 +158,11 @@ int taas__solve(int argc,
 		if(task != NULL){
 	    // read file
 	    struct AAF *aaf = (struct AAF*) malloc(sizeof(struct AAF));
-			taas__readFile(task->file,aaf);
+			// check formats
+			if(task->format != NULL && strcmp(task->format,"tgf") == 0)
+				taas__readFile_tgf(task->file,aaf);
+			else
+			  taas__readFile_i23(task->file,aaf);
 			// if DS or DC problem, parse argument under consideration
 			taas__update_arg_param(task,aaf);
 	    // check for (very) easy cases

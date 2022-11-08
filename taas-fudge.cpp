@@ -26,6 +26,7 @@
 /* ============================================================================================================== */
 #include <stdio.h>
 #include <ctype.h>
+#include <cmath>
 #include <glib.h>
 #include <assert.h>
 #include <stdbool.h>

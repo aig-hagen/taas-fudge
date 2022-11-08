@@ -30,6 +30,8 @@ struct TaskSpecification{
   char* problem;
   /** The file path */
   char* file;
+  /** The file format */
+  char* format;
   /** For DC and DS queries this attribute contains the queried argument*/
   int arg;
   char* argAsString;
@@ -66,6 +68,7 @@ struct TaskSpecification* taas__cmd_handle(int argc, char *argv[], struct Solver
   task->number_of_additional_arguments = 0;
   task->additional_keys = (char**) malloc(sizeof(char*));
   task->additional_values = (char**) malloc(sizeof(char*));
+  task->format = NULL;
   int param = 0;
   for(int i = 1; i < argc; i++){
     if(strcmp(argv[i],"-p") == 0){
@@ -80,6 +83,11 @@ struct TaskSpecification* taas__cmd_handle(int argc, char *argv[], struct Solver
     }
     if(strcmp(argv[i],"-a") == 0){
       task->argAsString = argv[++i];
+      continue;
+    }
+    if(strcmp(argv[i],"-fo") == 0){
+      task->format = argv[++i];
+      param++;
       continue;
     }
     // for the parameter "--formats" print out the formats and exit
@@ -127,8 +135,8 @@ char* taas__task_get_value(struct TaskSpecification *task, char* key){
   return NULL;
 }
 
-/** Read the file into the datastructures */
-void taas__readFile(char* path, struct AAF* aaf){
+/** Read a file in tgf into the data structures */
+void taas__readFile_tgf(char* path, struct AAF* aaf){
   // first get the number of arguments
   FILE* fp = fopen(path,"r");
   char* row = NULL;
@@ -204,10 +212,80 @@ void taas__readFile(char* path, struct AAF* aaf){
 	}
   fclose(fp);
 }
+
+/** Read a file in ICCMA23 format into the data structures */
+void taas__readFile_i23(char* path, struct AAF* aaf){
+  // first get the number of arguments
+  FILE* fp = fopen(path,"r");
+  char* row = NULL;
+  size_t len = 0;
+  ssize_t read;
+  while((read = getline(&row, &len, fp)) != -1) {
+    if(strncmp(trimwhitespace(row),"#",1) == 0)
+      continue;
+    if(strncmp(trimwhitespace(row),"p af",4) == 0){
+      aaf->number_of_arguments = atoi(&(trimwhitespace(row)[4]));
+      break;
+    }
+  }
+  // now do the actual parsing
+  aaf->ids2arguments = (char**) malloc(aaf->number_of_arguments * sizeof(char*));
+	aaf->children = (GSList**) malloc(aaf->number_of_arguments * sizeof(GSList*));
+	aaf->parents = (GSList**) malloc(aaf->number_of_arguments * sizeof(GSList*));
+  aaf->arguments2ids = (GHashTable*) g_hash_table_new(g_str_hash, g_str_equal);
+  aaf->number_of_attackers = (int*) malloc(aaf->number_of_arguments * sizeof(int));
+  aaf->number_of_attacks = 0;
+  aaf->initial = (struct BitSet*) malloc(sizeof(struct BitSet));
+  bitset__init(aaf->initial, aaf->number_of_arguments);
+  // all bits initially one
+  bitset__setAll(aaf->initial);
+  aaf->loops = (struct BitSet*) malloc(sizeof(struct BitSet));
+  bitset__init(aaf->loops, aaf->number_of_arguments);
+  // all bits initially zero
+  bitset__unsetAll(aaf->loops);
+  // initialise arguments
+
+  for(int idx = 0; idx < aaf->number_of_arguments; idx++){
+    char *arg1 = (char*) malloc(sizeof(char)*(int)std::log10(idx+1)+2);
+    sprintf(arg1, "%d", idx+1);
+    aaf->ids2arguments[idx] = arg1;
+    int* sidx = (int*) malloc(sizeof(int));
+    *sidx = idx;
+    g_hash_table_insert(aaf->arguments2ids,arg1,sidx);
+    aaf->children[idx] = NULL;
+    aaf->parents[idx] = NULL;
+    aaf->number_of_attackers[idx] = 0;
+  }
+	while ((read = getline(&row, &len, fp)) != -1) {
+    if(strcmp(trimwhitespace(row),"") == 0)
+      continue;
+		if(strncmp(trimwhitespace(row),"#",1) == 0)
+      continue;
+    // parse an attack
+    aaf->number_of_attacks++;
+		int idx = 0;
+		while(row[idx] != ' ')idx++;
+		row[idx] = 0;
+    int* idx1 = (int*) malloc(sizeof(int));
+    int* idx2 = (int*) malloc(sizeof(int));
+    *idx1 = atoi(row)-1;
+		*idx2 = atoi(&row[idx+1])-1;
+    aaf->children[*idx1] = g_slist_prepend(aaf->children[*idx1], idx2);
+    aaf->parents[*idx2] = g_slist_prepend(aaf->parents[*idx2], idx1);
+    aaf->number_of_attackers[*idx2]++;
+    // if an argument is attacked, it is not initial
+		bitset__unset(aaf->initial,*idx2);
+    // check for self-attacking arguments
+    if(*idx1 == *idx2){
+      bitset__set(aaf->loops,*idx1);
+    }
+	}
+  fclose(fp);
+}
 // if DS or DC problem, parse argument under consideration
 void taas__update_arg_param(struct TaskSpecification* task, struct AAF* aaf){
   if(strcmp(task->problem,"DS") == 0 || strcmp(task->problem,"DC") == 0)
-    task->arg = * (int*) g_hash_table_lookup(aaf->arguments2ids, trimwhitespace(task->argAsString));  
+    task->arg = * (int*) g_hash_table_lookup(aaf->arguments2ids, trimwhitespace(task->argAsString));
 }
 /* ============================================================================================================== */
 /* == END FILE ================================================================================================== */
