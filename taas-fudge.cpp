@@ -124,8 +124,8 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
 int main(int argc, char *argv[]){
   // General solver information
 	struct SolverInformation *info = taas__solverinformation(
-			"taas-fudge v3.1.1 (2022-07-19)\nMatthias Thimm (matthias.thimm@fernuni-hagen.de), Federico Cerutti (federico.cerutti@unibs.it), Mauro Vallati (m.vallati@hud.ac.uk)",
-			"[tgf]",
+			"taas-fudge v3.1.2 (2022-11-08)\nMatthias Thimm (matthias.thimm@fernuni-hagen.de), Federico Cerutti (federico.cerutti@unibs.it), Mauro Vallati (m.vallati@hud.ac.uk)",
+			"[tgf,i23]",
 			"[SE-GR,EE-GR,DC-GR,DS-GR,SE-CO,DS-CO,DS-PR,SE-ID,EA-PR,DC-CO,SE-ST,DS-ST,DS-ID,SE-PR,DC-PR,DC-ST,CE-ST,CE-CO,CE-PR]"
 		);
   return taas__solve(argc,argv,info,solve_switch);
