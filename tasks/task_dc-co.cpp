@@ -33,6 +33,15 @@ void solve_dcco(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
       return;
   }
   printf("YES\n");
+  if(PRINT_WITNESS){
+    printf("w ");
+    for(int i = 0; i < aaf->number_of_arguments; i++){
+      if(sat__get(solver_admTest,in_vars[i]) > 0){
+        printf("%d ",(i+1));
+      }
+    }
+    printf("\n");
+  }
   return;
 }
 

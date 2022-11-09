@@ -130,6 +130,39 @@ char* taas__lab_print(struct Labeling* lab, struct AAF* aaf){
 
 /**
  * gives a string representation of the labeling in the form
+ * "w a1 a2 an" where a1,...,an are the in-labeled arguments.
+ */
+char* taas__lab_print_i23(struct Labeling* lab, struct AAF* aaf){
+  int len = 100;
+  char* str = (char*) malloc(len);
+  int sidx = 0;
+  str[sidx++] = 'w';
+  str[sidx++] = ' ';
+  int isFirst = 1;
+  for(int idx = bitset__next_set_bit(lab->in,0); idx != -1 ; idx = bitset__next_set_bit(lab->in, idx+1)){
+    // if there is also a bit set in lab->out it means the argument is unlabeled, so skip it
+    if(!lab->twoValued && bitset__get(lab->out,idx))
+      continue;
+    if(sidx + strlen(aaf->ids2arguments[idx]) + 4 > len){
+      len += 100;
+      str = (char*) realloc(str, len);
+    }
+    if(isFirst != 0){
+      strcpy(&str[sidx],aaf->ids2arguments[idx]);
+      sidx += strlen(aaf->ids2arguments[idx]);
+      isFirst = 0;
+    } else{
+      str[sidx++] = ' ';
+      strcpy(&str[sidx],aaf->ids2arguments[idx]);
+      sidx += strlen(aaf->ids2arguments[idx]);
+    }
+  }
+  str[sidx] = '\0';
+  return str;
+}
+
+/**
+ * gives a string representation of the labeling in the form
  * "[a1=l1,...,an=ln]" where a1,...,an are all arguments and li is t
  */
 char* taas__lab_print_as_labeling(struct Labeling* lab, struct AAF* aaf){

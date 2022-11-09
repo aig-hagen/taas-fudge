@@ -55,13 +55,9 @@ int taas__check_very_easy_cases(struct TaskSpecification *task, struct AAF* aaf)
 }
 
 /**
- * Computes the grounded extension (only if return value == COMPUTATION_FINISHED)
- * if return value == COMPUTATION_ABORTED__ANSWER_YES: computing of grounded extension has been aborated
- *     as the answer of the query is already decided to be "YES" (only possible for DC/DS)
- * if return value == COMPUTATION_ABORTED__ANSWER_NO: computing of grounded extension has been aborated
- *     as the answer of the query is already decided to be "NO" (only possible for DC/DS)
+ * Computes the grounded extension
  */
-int taas__compute_grounded(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
+void taas__compute_grounded(struct AAF* aaf, struct Labeling* grounded){
 	// all initial arguments are automatically in the grounded extension
   bitset__clone(aaf->initial, grounded->in);
 	// all arguments attacked by initial arguments are out
@@ -73,7 +69,6 @@ int taas__compute_grounded(struct TaskSpecification *task, struct AAF* aaf, stru
 		int* sidx = (int*) malloc(sizeof(int));
 		*sidx = a;
 		stack = g_slist_prepend(stack,sidx);
-		//printf("A: %s\n", aaf->ids2arguments[*sidx]);
 	}
 	while(g_slist_length(stack)>0){
 		int* arg = (int*) stack->data;
@@ -83,15 +78,6 @@ int taas__compute_grounded(struct TaskSpecification *task, struct AAF* aaf, stru
 			// if *(int*)node->data is already out, we can continue
 			if(bitset__get(grounded->out,*(int*)node->data))
 				continue;
-			// check if we can already provide an answer for the problem
-			if(*(int*)node->data == task->arg){
-				// as *(int*)node->data is attacked by the grounded extension, it is neither
-				// credulously nor skeptically accepted in any semantics
-				// (except maybe for stable semantics and skeptical reasoning)
-				if(strcmp(task->track,"DS-ST") != 0){
-					return COMPUTATION_ABORTED__ANSWER_NO;
-				}
-			}
 			//argument is out
 			bitset__set(grounded->out,*(int*)node->data);
 			//decrease attack counter by one for each child of *(int*)node->data
@@ -99,15 +85,6 @@ int taas__compute_grounded(struct TaskSpecification *task, struct AAF* aaf, stru
 				if(aaf->number_of_attackers[*(int*)node2->data] > 0){
 					aaf->number_of_attackers[*(int*)node2->data]--;
 					if(aaf->number_of_attackers[*(int*)node2->data] == 0){
-						// check if we can already provide an answer for the problem
-				    if(*(int*)node2->data == task->arg){
-							// as *(int*)node2->data is in the grounded extension, it is both
-							// credulously and skeptically accepted in any semantics
-							// (except maybe for stable semantics and credulous reasoning)
-							if(strcmp(task->track,"DC-ST") != 0){
-								return COMPUTATION_ABORTED__ANSWER_YES;
-							}
-						}
 						bitset__set(grounded->in,*(int*)node2->data);
 						int* sidx = (int*) malloc(sizeof(int));
 						*sidx = *(int*)node2->data;
@@ -119,12 +96,6 @@ int taas__compute_grounded(struct TaskSpecification *task, struct AAF* aaf, stru
 		}
 		free(arg);
 	}
-  // if we have not solved DS_GR, DC_GR, or DS_CO until now, the answer is definitely "NO" (otherwise we
-  // would have found the argument to be in by now)
-	if(strcmp(task->track,"DS-GR") == 0 || strcmp(task->track,"DC-GR") == 0 || strcmp(task->track, "DS-CO") == 0){
-		return COMPUTATION_FINISHED__ANSWER_NO;
-  }
-  return COMPUTATION_FINISHED;
 }
 
 /*bool fullcovered(struct Labeling* grounded, struct AAF* aaf){
@@ -165,53 +136,25 @@ int taas__solve(int argc,
 			  taas__readFile_i23(task->file,aaf);
 			// if DS or DC problem, parse argument under consideration
 			taas__update_arg_param(task,aaf);
-	    // check for (very) easy cases
-	    int ans = taas__check_very_easy_cases(task,aaf);
-	    // this will hold the grounded extension if needed
+	    // this will hold the grounded extension
 	    struct Labeling* grounded;
-	    char bool_grounded_init = 0;
-			if(ans == COMPUTATION_FINISHED__NONEMPTY_GROUNDED){
-	      // if the answer is not (very) easy and there are initial arguments
-	      // compute now the complete grounded labeling
-			  grounded = (struct Labeling*) malloc(sizeof(struct Labeling));
-	      bool_grounded_init = 1;
-	      taas__lab_init(grounded,FALSE);
-	      ans = taas__compute_grounded(task,aaf,grounded);
-	    }
-	    // check if we already solved some easy cases
-	    if(ans == COMPUTATION_ABORTED__ANSWER_YES){
-	      printf("YES\n");
-	    }else if(ans == COMPUTATION_ABORTED__ANSWER_NO || ans == COMPUTATION_FINISHED__ANSWER_NO){
-				printf("NO\n");
-	  	}else if(ans == COMPUTATION_ABORTED__ANSWER_EMPTYSET){
-	  		printf("[]\n");
-	    }else if(ans == COMPUTATION_ABORTED__ANSWER_EMPTYEMPTYSET){
-	  		printf("[\n[]\n]\n");
-	    }else if(strcmp(task->track,"SE-GR") == 0 || strcmp(task->track, "SE-CO") == 0 ){
-	      printf("%s\n",taas__lab_print(grounded,aaf));
-	    }else if(strcmp(task->track,"EE-GR") == 0){
-	      printf("[\n%s\n]\n",taas__lab_print(grounded,aaf));
-	    }else if (bool_grounded_init && fullcovered(grounded,aaf) && (
-                    (strcmp(task->track,"EA-PR") == 0) ||
-	                (strcmp(task->track,"SE-ID") == 0)
-	            )){
-            printf("%s\n",taas__lab_print(grounded,aaf));
-	    }else{
-	      // at this point DS_GR, DC_GR, EE_GR, SE_GR, SE_CO, DS_CO are solved
-				// if grounded has not been computed yet, it is empty
-				if(!bool_grounded_init){
-					grounded = (struct Labeling*) malloc(sizeof(struct Labeling));
-		      bool_grounded_init = 1;
-		      taas__lab_init(grounded,FALSE);
-					bitset__init(grounded->in, aaf->number_of_arguments);
-					bitset__unsetAll(grounded->in);
-					bitset__init(grounded->out, aaf->number_of_arguments);
-					bitset__unsetAll(grounded->out);
-				}
-	      doSolve(task,aaf,grounded);
-	    }
-	    if(bool_grounded_init) taas__lab_destroy(grounded);
-	    // destroy aaf
+	    grounded = (struct Labeling*) malloc(sizeof(struct Labeling));
+	    taas__lab_init(grounded,FALSE);
+	    taas__compute_grounded(aaf,grounded);
+			// check what queries we can already solve
+			if(strcmp(task->track,"SE-GR") == 0 || strcmp(task->track,"SE-CO") == 0){
+				printf("%s\n", taas__lab_print_i23(grounded,aaf));
+			}else if(strcmp(task->track,"DC-GR") == 0 || strcmp(task->track,"DS-GR") == 0 || strcmp(task->track,"DS-CO") == 0){
+				if(bitset__get(grounded->in,task->arg))
+					printf("YES\n");
+				else printf("NO\n");
+				printf("%s\n", taas__lab_print_i23(grounded,aaf));
+			}else if((strcmp(task->track,"DC-CO") == 0 || strcmp(task->track,"DC-PR") == 0) && bitset__get(grounded->in,task->arg)){
+				printf("YES\n");
+				printf("%s\n", taas__lab_print_i23(grounded,aaf));
+			}else
+      	doSolve(task,aaf,grounded);
+	    taas__lab_destroy(grounded);
 	    taas__aaf_destroy(aaf);
 	  }
 	  taas__solverinformation_destroy(info);

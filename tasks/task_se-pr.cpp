@@ -29,7 +29,7 @@ void solve_sepr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
   // is also preferred
   if(all_grounded){
     sat__free(solver);
-    printf("%s\n",taas__lab_print(grounded,aaf));
+    printf("%s\n",taas__lab_print_i23(grounded,aaf));
     return;
   }
   // add a clause imposing that at least one argument is in the set
@@ -44,7 +44,7 @@ void solve_sepr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
   int sat;
   int* clause = (int*) malloc(aaf->number_of_arguments * sizeof(int));
   while(true){
-      sat = sat__solve(solver);      
+      sat = sat__solve(solver);
       if(sat == 20)
         break;
       int idx = 0;
@@ -63,7 +63,7 @@ void solve_sepr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
       raset__reset(temp);
   }
   free(clause);
-  raset__print(admSet,aaf->ids2arguments);
+  raset__print_i23(admSet,aaf->ids2arguments);
   raset__destroy(admSet);
   raset__destroy(temp);
   sat__free(solver);

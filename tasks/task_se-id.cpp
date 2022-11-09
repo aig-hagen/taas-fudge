@@ -26,7 +26,7 @@ struct RaSet* compute_ideal(struct TaskSpecification *task, struct AAF* aaf, str
     ExternalSolver solver_admTest;
     sat__init(solver_admTest, idx-1,taas__task_get_value(task,"-sat"));
     // add admissibility clauses
-    add_admTestClauses(solver_admTest,in_vars,out_vars,aaf,grounded);    
+    add_admTestClauses(solver_admTest,in_vars,out_vars,aaf,grounded);
     // set "psc" will eventually hold the preferred super-core
     struct RaSet* psc = raset__init_empty(aaf->number_of_arguments);
     for(int i = 0; i < aaf->number_of_arguments; i++){
@@ -136,7 +136,7 @@ struct RaSet* compute_ideal(struct TaskSpecification *task, struct AAF* aaf, str
 
 void solve_seid(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
   struct RaSet* ideal = compute_ideal(task,aaf,grounded);
-  raset__print(ideal,aaf->ids2arguments);
+  raset__print_i23(ideal,aaf->ids2arguments);
   raset__destroy(ideal);
 }
 

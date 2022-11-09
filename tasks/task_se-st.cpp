@@ -29,17 +29,12 @@ void solve_sest(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
       return;
   }
   // print extension
-  printf("[");
-  char isFirst = TRUE;
+  printf("w ");
   for(int i = 0; i < aaf->number_of_arguments; i++){
-    if(sat__get(solver,in_vars[i]) > 0){
-      if(isFirst){
-        isFirst = FALSE;
-        printf("%s",aaf->ids2arguments[i]);
-      }else printf(",%s",aaf->ids2arguments[i]);
-    }
+    if(sat__get(solver,in_vars[i]) > 0)
+      printf("%s ",aaf->ids2arguments[i]);          
   }
-  printf("]\n");
+  printf("\n");
   return;
 }
 

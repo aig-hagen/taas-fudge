@@ -24,6 +24,19 @@
 #define FALSE 0
 /* ============================================================================================================== */
 /* ============================================================================================================== */
+// printing witnesses supported for:
+// - DC-CO, DC-PR (returns admissible set containing query)
+// - DC-ST (returns stable extension containing query)
+// - DS-ST (returns stable extension not containing query)
+// - DS-PR (returns some preferred extension that does not contain the query or an admissible set attacking the query)
+// - DS-ID, DC-ID (returns the ideal extension as witness in any case)
+// - SE-ST, SE-PR new format
+// easy cases not yet implemented:
+// - for "NO" DS-CO answer, the grounded extension is a witness
+// - SE-CO prints grounded extension
+#define PRINT_WITNESS 1
+/* ============================================================================================================== */
+/* ============================================================================================================== */
 #include <stdio.h>
 #include <ctype.h>
 #include <cmath>
@@ -48,6 +61,7 @@
 #include "sat/sat_external.cpp"
 
 #include "tasks/task_general.cpp"
+#include "tasks/task_se-pr.cpp"
 #include "tasks/task_ds-pr.cpp"
 #include "tasks/task_se-id.cpp"
 #include "tasks/task_ea-pr.cpp"
@@ -56,7 +70,6 @@
 #include "tasks/task_dc-st.cpp"
 #include "tasks/task_ds-st.cpp"
 #include "tasks/task_ds-id.cpp"
-#include "tasks/task_se-pr.cpp"
 #include "tasks/task_ce-st.cpp"
 #include "tasks/task_ce-co.cpp"
 #include "tasks/task_ce-pr.cpp"
@@ -103,9 +116,16 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
   // DS-ST
   if(strcmp(task->track,"DS-ST") == 0)
     return solve_dsst(task, aaf, grounded);
-  // DS-ID
-  if(strcmp(task->track,"DS-ID") == 0)
-    return solve_dsid(task, aaf, grounded);
+  // DS-ID and DC-ID
+  if(strcmp(task->track,"DS-ID") == 0 || strcmp(task->track,"DC-ID") == 0)
+    if(PRINT_WITNESS){
+      struct RaSet* ideal = compute_ideal(task,aaf,grounded);
+      if(raset__contains(ideal,task->arg))
+        printf("YES\n");
+      else printf("NO\n");
+      raset__print_i23(ideal,aaf->ids2arguments);
+      raset__destroy(ideal);
+    }else return solve_dsid(task, aaf, grounded);
   // SE-PR
   if(strcmp(task->track,"SE-PR") == 0)
     return solve_sepr(task, aaf, grounded);
@@ -124,9 +144,9 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
 int main(int argc, char *argv[]){
   // General solver information
 	struct SolverInformation *info = taas__solverinformation(
-			"taas-fudge v3.1.2 (2022-11-08)\nMatthias Thimm (matthias.thimm@fernuni-hagen.de), Federico Cerutti (federico.cerutti@unibs.it), Mauro Vallati (m.vallati@hud.ac.uk)",
-			"[tgf,i23]",
-			"[SE-GR,EE-GR,DC-GR,DS-GR,SE-CO,DS-CO,DS-PR,SE-ID,EA-PR,DC-CO,SE-ST,DS-ST,DS-ID,SE-PR,DC-PR,DC-ST,CE-ST,CE-CO,CE-PR]"
+			"taas-fudge v3.2.0 (2022-11-09)\nMatthias Thimm (matthias.thimm@fernuni-hagen.de), Federico Cerutti (federico.cerutti@unibs.it), Mauro Vallati (m.vallati@hud.ac.uk)",
+			"[i23]",
+			"[SE-GR,DC-GR,DS-GR,SE-CO,DC-CO,DS-CO,SE-PR,DC-PR,DS-PR,SE-ST,DC-ST,DS-ST,SE-ID,DC-ID,DS-ID]"
 		);
   return taas__solve(argc,argv,info,solve_switch);
 }

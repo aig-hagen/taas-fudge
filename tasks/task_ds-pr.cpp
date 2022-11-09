@@ -48,6 +48,10 @@ void solve_dspr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
   int sat = sat__solve(solver_admTest);
   if(sat == 20){
       printf("NO\n");
+      if(PRINT_WITNESS){
+        // just print any preferred extension
+        solve_sepr(task,aaf,grounded);
+      }
       return;
   }
   for(int i = 0; i < aaf->number_of_arguments; i++){
@@ -61,6 +65,15 @@ void solve_dspr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
   sat = sat__solve(solver_admTest);
   if(sat == 10){
       printf("NO\n");
+      if(PRINT_WITNESS){
+        printf("w ");
+        for(int i = 0; i < aaf->number_of_arguments; i++){
+          if(sat__get(solver_admTest,in_vars[i]) > 0){
+            printf("%d ",(i+1));
+          }
+        }
+        printf("\n");
+      }
       return;
   }
   // main loop
@@ -80,6 +93,37 @@ void solve_dspr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
     sat = sat__solve(solver_admTest);
     if(sat == 20){
         printf("NO\n");
+        if(PRINT_WITNESS){
+          // we have to find a preferred extension as a witness, starting
+          // from the admissible set encoded in solver_attAdmTest
+          struct RaSet* admSet = raset__init_empty(aaf->number_of_arguments);
+          int* clause = (int*) malloc(aaf->number_of_arguments * sizeof(int));
+          int idx = 0;
+          for(int i = 0; i < aaf->number_of_arguments; i++){
+            if(sat__get(solver_attAdmTest,in_vars[i]) > 0){
+              sat__assume(solver_admTest,in_vars[i]);
+              raset__add(admSet,i);
+            }else clause[idx++] = in_vars[i];
+          }
+          sat__addClause(solver_admTest,clause,idx);
+          while(true){
+            sat = sat__solve(solver_admTest);
+            if(sat == 20){
+              raset__print_i23(admSet,aaf->ids2arguments);
+              return;
+            }
+            clause = (int*) malloc(aaf->number_of_arguments * sizeof(int));
+            idx = 0;
+            for(int i = 0; i < aaf->number_of_arguments; i++){
+              if(sat__get(solver_admTest,in_vars[i]) > 0){
+                sat__assume(solver_admTest,in_vars[i]);
+                if(!raset__contains(admSet,i))
+                  raset__add(admSet,i);
+              }else clause[idx++] = in_vars[i];
+            }
+            sat__addClause(solver_admTest,clause,idx);
+          }
+        }
         return;
     }
     for(int i = 0; i < aaf->number_of_arguments; i++){
