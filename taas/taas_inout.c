@@ -244,7 +244,6 @@ void taas__readFile_i23(char* path, struct AAF* aaf){
   // all bits initially zero
   bitset__unsetAll(aaf->loops);
   // initialise arguments
-
   for(int idx = 0; idx < aaf->number_of_arguments; idx++){
     char *arg1 = (char*) malloc(sizeof(char)*(int)std::log10(idx+1)+2);
     sprintf(arg1, "%d", idx+1);

@@ -130,17 +130,18 @@ int taas__solve(int argc,
 	    // read file
 	    struct AAF *aaf = (struct AAF*) malloc(sizeof(struct AAF));
 			// check formats
-			if(task->format != NULL && strcmp(task->format,"tgf") == 0)
-				taas__readFile_tgf(task->file,aaf);
-			else
-			  taas__readFile_i23(task->file,aaf);
+			// NOTE: for ICCMA23, we only support i23
+			//if(task->format != NULL && strcmp(task->format,"tgf") == 0)
+			//	taas__readFile_tgf(task->file,aaf);
+			//else
+			taas__readFile_i23(task->file,aaf);
 			// if DS or DC problem, parse argument under consideration
 			taas__update_arg_param(task,aaf);
 	    // this will hold the grounded extension
 	    struct Labeling* grounded;
 	    grounded = (struct Labeling*) malloc(sizeof(struct Labeling));
 	    taas__lab_init(grounded,FALSE);
-	    taas__compute_grounded(aaf,grounded);
+			taas__compute_grounded(aaf,grounded);
 			// check what queries we can already solve
 			if(strcmp(task->track,"SE-GR") == 0 || strcmp(task->track,"SE-CO") == 0){
 				printf("%s\n", taas__lab_print_i23(grounded,aaf));
