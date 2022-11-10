@@ -158,11 +158,16 @@ int sat__solve(ExternalSolver & solver){
     if(line.rfind("v ", 0) == 0){
         line.erase(0, 2);
         size_t pos = 0;
-        while((pos = line.find(" ")) != std::string::npos) {
+        while(line.length() > 0) {
+          pos = line.find(" ");
+          if(pos == std::string::npos)
+            pos = line.length();
           int var = stoi(line.substr(0, pos));
           if(var > 0)
             solver.model[var] = true;
-          else solver.model[-var] = false;
+          else if(var < 0)
+            solver.model[-var] = false;
+          else break;
           line.erase(0, pos + 1);
         }
     }
