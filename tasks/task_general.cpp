@@ -44,6 +44,32 @@ bool add_admTestClauses(ExternalSolver & solver, int* in_vars, int* out_vars, st
    return all_grounded;
 }
 
+// adds clauses such that a model represents a conflict-free set
+// returns "true" iff all arguments are either in the grounded extension
+// or attacked by it
+bool add_cfTestClauses(ExternalSolver & solver, int* in_vars, int* out_vars, struct AAF* aaf, struct Labeling* grounded){
+   bool all_grounded = true;
+   for(int i = 0; i < aaf->number_of_arguments; i++){
+       // argument i cannot both be in and out
+       sat__addClause2(solver,-in_vars[i],-out_vars[i]);
+       // check grounded extension
+       if(!bitset__get(grounded->in,i) && !bitset__get(grounded->out,i))
+            all_grounded = false;
+       // add conflict-free clauses
+       int* out_clause = (int*) malloc((2+aaf->number_of_arguments) * sizeof(int));
+       int idx = 1;
+       out_clause[0] = -out_vars[i];
+       for(GSList* node = aaf->parents[i]; node != NULL; node = node->next){
+           sat__addClause2(solver,-in_vars[(*(int*)node->data)],out_vars[i]);
+           out_clause[idx++] = in_vars[*(int*)node->data];
+       }
+       out_clause[idx] = 0;
+       sat__addClauseZT(solver,out_clause);
+       free(out_clause);
+   }
+   return all_grounded;
+}
+
 // adds clauses such that a model represents two sets where one attacks the other
 void add_attackClauses(ExternalSolver & solver, int* in_vars, int* in_attacked_vars, int attack_idx_offset, struct AAF* aaf, struct Labeling* grounded){
   int* clause_oneattack = (int*) malloc((aaf->number_of_attacks) * sizeof(int));//one attack must be present

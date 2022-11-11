@@ -69,6 +69,8 @@
 #include "tasks/task_ce-st.cpp"
 #include "tasks/task_ce-co.cpp"
 #include "tasks/task_ce-pr.cpp"
+#include "tasks/task_se-sst.cpp"
+#include "tasks/task_se-stg.cpp"
 
 /* ============================================================================================================== */
 /* ============================================================================================================== */
@@ -125,6 +127,12 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
   // SE-PR
   if(strcmp(task->track,"SE-PR") == 0)
     return solve_sepr(task, aaf, grounded);
+  // SE-SST
+  if(strcmp(task->track,"SE-SST") == 0)
+    return solve_sesst(task, aaf, grounded);
+  // SE-STG
+  if(strcmp(task->track,"SE-STG") == 0)
+    return solve_sestg(task, aaf, grounded);
   // CE-ST
   if(strcmp(task->track,"CE-ST") == 0)
     return solve_cest(task, aaf, grounded);
@@ -140,9 +148,9 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
 int main(int argc, char *argv[]){
   // General solver information
 	struct SolverInformation *info = taas__solverinformation(
-			"taas-fudge v3.2.2 (2022-11-10)\nMatthias Thimm (matthias.thimm@fernuni-hagen.de), Federico Cerutti (federico.cerutti@unibs.it), Mauro Vallati (m.vallati@hud.ac.uk)",
+			"taas-fudge v3.2.3 (2022-11-11)\nMatthias Thimm (matthias.thimm@fernuni-hagen.de), Federico Cerutti (federico.cerutti@unibs.it), Mauro Vallati (m.vallati@hud.ac.uk)",
 			"[i23]",
-			"[SE-GR,DC-GR,DS-GR,SE-CO,DC-CO,DS-CO,SE-PR,DC-PR,DS-PR,SE-ST,DC-ST,DS-ST,SE-ID,DC-ID,DS-ID]"
+			"[SE-GR,DC-GR,DS-GR,SE-CO,DC-CO,DS-CO,SE-PR,DC-PR,DS-PR,SE-ST,DC-ST,DS-ST,SE-ID,DC-ID,DS-ID,SE-SST,SE-STG]"
 		);
   return taas__solve(argc,argv,info,solve_switch);
 }
