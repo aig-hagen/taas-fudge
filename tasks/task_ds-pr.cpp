@@ -128,7 +128,7 @@ void solve_dspr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
     }
     for(int i = 0; i < aaf->number_of_arguments; i++){
       if(sat__get(solver_admTest,in_vars[i]) < 0){
-        sat__add(solver_attAdmTest,in_vars[i]);
+        sat__add(solver_attAdmTest,in_vars[i]);        
       }
     }
     sat__add(solver_attAdmTest,0);
