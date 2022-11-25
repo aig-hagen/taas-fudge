@@ -62,6 +62,7 @@
 #include "tasks/task_se-id.cpp"
 #include "tasks/task_ea-pr.cpp"
 #include "tasks/task_dc-co.cpp"
+#include "tasks/task_dc-sst.cpp"
 #include "tasks/task_se-st.cpp"
 #include "tasks/task_dc-st.cpp"
 #include "tasks/task_ds-st.cpp"
@@ -133,6 +134,9 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
   // SE-STG
   if(strcmp(task->track,"SE-STG") == 0)
     return solve_sestg(task, aaf, grounded);
+  // DC-SST
+  if(strcmp(task->track,"DC-SST") == 0)
+    return solve_dcsst(task, aaf, grounded);
   // CE-ST
   if(strcmp(task->track,"CE-ST") == 0)
     return solve_cest(task, aaf, grounded);
@@ -150,7 +154,7 @@ int main(int argc, char *argv[]){
 	struct SolverInformation *info = taas__solverinformation(
 			"taas-fudge v3.2.4 (2022-11-25)\nMatthias Thimm (matthias.thimm@fernuni-hagen.de), Federico Cerutti (federico.cerutti@unibs.it), Mauro Vallati (m.vallati@hud.ac.uk)",
 			"[i23,tgf]",
-			"[SE-GR,DC-GR,DS-GR,SE-CO,DC-CO,DS-CO,SE-PR,DC-PR,DS-PR,SE-ST,DC-ST,DS-ST,SE-ID,DC-ID,DS-ID,SE-SST,SE-STG]"
+			"[SE-GR,DC-GR,DS-GR,SE-CO,DC-CO,DS-CO,SE-PR,DC-PR,DS-PR,SE-ST,DC-ST,DS-ST,SE-ID,DC-ID,DS-ID,DC-SST,SE-SST,SE-STG]"
 		);
   return taas__solve(argc,argv,info,solve_switch);
 }
