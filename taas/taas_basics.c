@@ -121,13 +121,13 @@ int taas__solve(int argc,
 						printf("%s\n", taas__lab_print_i23(grounded,aaf));
 					else{
 						// for all other semantics, just compute any extension
-						if(strcmp(task->track,"DC-PR"))
+						if(strcmp(task->track,"DC-PR") == 0)
 							task->track = "SE-PR";
-						else if(strcmp(task->track,"DC-SST"))
+						else if(strcmp(task->track,"DC-SST") == 0)
 							task->track = "SE-SST";
-						else if(strcmp(task->track,"DC-STG"))
+						else if(strcmp(task->track,"DC-STG") == 0)
 							task->track = "SE-STG";
-						else if(strcmp(task->track,"DC-ID"))
+						else if(strcmp(task->track,"DC-ID") == 0)
 							task->track = "SE-ID";
 						doSolve(task,aaf,grounded);
 					}
@@ -156,13 +156,13 @@ int taas__solve(int argc,
 				// answer is NO for skeptical reasoning wrt. all semantics
 				// except possibly stable and stage semantics
 				printf("NO\n");
-				if(PRINT_WITNESS){						
+				if(PRINT_WITNESS){
 						// just compute any extension
-						if(strcmp(task->track,"DS-PR"))
+						if(strcmp(task->track,"DS-PR") == 0)
 							task->track = "SE-PR";
-						else if(strcmp(task->track,"DS-SST"))
+						else if(strcmp(task->track,"DS-SST") == 0)
 							task->track = "SE-SST";
-						else if(strcmp(task->track,"DS-ID"))
+						else if(strcmp(task->track,"DS-ID") == 0)
 							task->track = "SE-ID";
 						doSolve(task,aaf,grounded);
 				}

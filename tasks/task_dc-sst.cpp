@@ -72,13 +72,16 @@ void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
       }
       sat__addClause(inner_solver,clause,idx);
       while(true){
+        sat__assume(inner_solver,in_vars[task->arg]);
         sat = sat__solve(inner_solver);
-        if(sat == 20){
-            // no extension with smaller UNDEC set could be found
-            // TODO
-            // if argument is IN in the previously found extension, answer YES
-            // and return
-            if(raset__contains(in_arg,task->arg)){
+        if(sat == 20){          
+            // no set with smaller UNDEC set could be found
+            // that also contains the argument
+            // now check whether there is a set with smaller
+            // undec set (that would then not contain the argument)
+            sat = sat__solve(inner_solver);
+            if(sat == 20){
+              // so we found a semi-stable extension with the argument
               printf("YES\n");
               raset__print_i23(in_arg,aaf->ids2arguments);
               raset__destroy(notUndec);
@@ -103,13 +106,13 @@ void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
         raset__reset(in_arg);
         for(int i = 0; i < aaf->number_of_arguments; i++){
           if(sat__get(inner_solver,in_vars[i]) > 0 || sat__get(inner_solver,out_vars[i]) > 0){
-            if(!raset__contains(notUndec,i)){
+            if(!raset__contains(notUndec,i) && task->arg != i){
               sat__addClause2(inner_solver,in_vars[i],out_vars[i]);
               raset__add(notUndec,i);
             }
             if(sat__get(inner_solver,in_vars[i]) > 0)
               raset__add(in_arg,i);
-          }else{
+          }else if(task->arg != i){
             clause[idx++] = in_vars[i];
             clause[idx++] = out_vars[i];
           }

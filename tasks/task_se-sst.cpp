@@ -12,7 +12,7 @@
  */
 
 // the fudge approach for SE-SST
-void solve_sesst(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
+void solve_sesst(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){    
   ExternalSolver solver;
   sat__init(solver, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
   // initialise variables
