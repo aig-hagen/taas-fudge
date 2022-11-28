@@ -3,15 +3,15 @@
 /* ============================================================================================================== */
 /*
  ============================================================================
- Name        : task_dc-sst.cpp
+ Name        : task_dc-stg.cpp
  Author      : Matthias Thimm
  Version     : 2.0
  Copyright   : GPL3
- Description : solve function for DC-SST
+ Description : solve function for DC-STG
  ============================================================================
  */
 
-void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
+void solve_dcstg(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
   ExternalSolver solver;
   sat__init(solver, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
   // initialise variables
@@ -22,10 +22,10 @@ void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
     in_vars[i] = idx++;
     out_vars[i] = idx++;
   }
-  // add admissibility clauses
-  bool all_grounded = add_admTestClauses(solver,in_vars,out_vars,aaf,grounded);
+  // add conflict-free clauses
+  bool all_grounded = add_cfTestClauses(solver,in_vars,out_vars,aaf,grounded);
   // if the grounded extension already attacks all remaining arguments, it
-  // is also the only semi-stable extension
+  // is also the only stage extension
   if(all_grounded){
     sat__free(solver);
     if(bitset__get(grounded->in,task->arg))
@@ -40,7 +40,7 @@ void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
       sat__assume(solver,in_vars[task->arg]);
       int sat = sat__solve(solver);
       if(sat == 20){
-          // no admissible set containing arg could be found, answer is NO
+          // no conflict-free set containing arg could be found, answer is NO
           printf("NO\n");
           return;
       }
@@ -53,7 +53,7 @@ void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
       struct RaSet* temp = raset__init_empty(aaf->number_of_arguments);
       ExternalSolver inner_solver;
       sat__init(inner_solver, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
-      add_admTestClauses(inner_solver,in_vars,out_vars,aaf,grounded);
+      add_cfTestClauses(inner_solver,in_vars,out_vars,aaf,grounded);
       // add clauses imposing that arguments IN/OUT in the previously
       // found model are again IN/OUT
       // at least one of the others must become IN/OUT
@@ -81,7 +81,7 @@ void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
             // undec set (that would then not contain the argument)
             sat = sat__solve(inner_solver);
             if(sat == 20){
-              // so we found a semi-stable extension with the argument
+              // so we found a stage extension with the argument
               printf("YES\n");
               raset__print_i23(in_arg,aaf->ids2arguments);
               raset__destroy(notUndec);

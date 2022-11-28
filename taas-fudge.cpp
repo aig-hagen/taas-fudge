@@ -63,6 +63,9 @@
 #include "tasks/task_ea-pr.cpp"
 #include "tasks/task_dc-co.cpp"
 #include "tasks/task_dc-sst.cpp"
+#include "tasks/task_ds-sst.cpp"
+#include "tasks/task_dc-stg.cpp"
+#include "tasks/task_ds-stg.cpp"
 #include "tasks/task_se-st.cpp"
 #include "tasks/task_dc-st.cpp"
 #include "tasks/task_ds-st.cpp"
@@ -80,20 +83,6 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
     printf("SAT solver must be specified via -sat <path>.\n");
     exit(0);
   }
-  /*ExternalSolver solver;
-  sat__init(solver, 3,taas__task_get_value(task,"-sat"));
-  sat__addClause3(solver, 1, 2, 3);
-  sat__addClause3(solver, -1, 2, -3);
-  sat__addClause3(solver, -1, -2, 3);
-  sat__assume(solver,1);
-  sat__assume(solver,2);
-  //sat__addClause2(solver, 1, -2);
-  sat__solve(solver);
-  //TODO
-  std::cout << solver.model[1] << std::endl;
-  std::cout << solver.model[2] << std::endl;
-  std::cout << solver.model[3] << std::endl;
-  exit(0);*/
   // DS-PR
   if(strcmp(task->track,"DS-PR") == 0)
     return solve_dspr(task, aaf, grounded);
@@ -137,6 +126,15 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
   // DC-SST
   if(strcmp(task->track,"DC-SST") == 0)
     return solve_dcsst(task, aaf, grounded);
+  // DS-SST
+  if(strcmp(task->track,"DS-SST") == 0)
+    return solve_dssst(task, aaf, grounded);
+  // DC-STG
+  if(strcmp(task->track,"DC-STG") == 0)
+    return solve_dcstg(task, aaf, grounded);
+  // DS-STG
+  if(strcmp(task->track,"DS-STG") == 0)
+    return solve_dsstg(task, aaf, grounded);
   // CE-ST
   if(strcmp(task->track,"CE-ST") == 0)
     return solve_cest(task, aaf, grounded);
@@ -152,9 +150,9 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
 int main(int argc, char *argv[]){
   // General solver information
 	struct SolverInformation *info = taas__solverinformation(
-			"taas-fudge v3.2.5 (2022-11-28)\nMatthias Thimm (matthias.thimm@fernuni-hagen.de), Federico Cerutti (federico.cerutti@unibs.it), Mauro Vallati (m.vallati@hud.ac.uk)",
+			"taas-fudge v3.2.6 (2022-11-28)\nMatthias Thimm (matthias.thimm@fernuni-hagen.de), Federico Cerutti (federico.cerutti@unibs.it), Mauro Vallati (m.vallati@hud.ac.uk)",
 			"[i23,tgf]",
-			"[SE-GR,DC-GR,DS-GR,SE-CO,DC-CO,DS-CO,SE-PR,DC-PR,DS-PR,SE-ST,DC-ST,DS-ST,SE-ID,DC-ID,DS-ID,DC-SST,SE-SST,SE-STG]"
+			"[SE-GR,DC-GR,DS-GR,SE-CO,DC-CO,DS-CO,SE-PR,DC-PR,DS-PR,SE-ST,DC-ST,DS-ST,SE-ID,DC-ID,DS-ID,DC-SST,DS-SST,SE-SST,DC-STG,DS-STG,SE-STG]"
 		);
   return taas__solve(argc,argv,info,solve_switch);
 }

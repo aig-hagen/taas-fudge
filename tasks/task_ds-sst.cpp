@@ -3,15 +3,15 @@
 /* ============================================================================================================== */
 /*
  ============================================================================
- Name        : task_dc-sst.cpp
+ Name        : task_ds-sst.cpp
  Author      : Matthias Thimm
  Version     : 2.0
  Copyright   : GPL3
- Description : solve function for DC-SST
+ Description : solve function for DS-SST
  ============================================================================
  */
 
-void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
+void solve_dssst(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
   ExternalSolver solver;
   sat__init(solver, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
   // initialise variables
@@ -36,12 +36,12 @@ void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
   }
   // main loop
   while(true){
-      // assume arg is in
-      sat__assume(solver,in_vars[task->arg]);
+      // assume arg is not in
+      sat__assume(solver,-in_vars[task->arg]);
       int sat = sat__solve(solver);
       if(sat == 20){
-          // no admissible set containing arg could be found, answer is NO
-          printf("NO\n");
+          // no admissible set not containing arg could be found, answer is YES
+          printf("YES\n");
           return;
       }
       // now maximise UNDEC of the previously found model
@@ -72,17 +72,17 @@ void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
       }
       sat__addClause(inner_solver,clause,idx);
       while(true){
-        sat__assume(inner_solver,in_vars[task->arg]);
+        sat__assume(inner_solver,-in_vars[task->arg]);
         sat = sat__solve(inner_solver);
         if(sat == 20){
             // no set with smaller UNDEC set could be found
-            // that also contains the argument
+            // that also does not contain the argument
             // now check whether there is a set with smaller
-            // undec set (that would then not contain the argument)
+            // undec set (that would then contain the argument)
             sat = sat__solve(inner_solver);
             if(sat == 20){
-              // so we found a semi-stable extension with the argument
-              printf("YES\n");
+              // so we found a semi-stable extension without the argument
+              printf("NO\n");
               raset__print_i23(in_arg,aaf->ids2arguments);
               raset__destroy(notUndec);
               raset__destroy(in_arg);
@@ -112,7 +112,7 @@ void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
             }
             if(sat__get(inner_solver,in_vars[i]) > 0)
               raset__add(in_arg,i);
-          }else{
+          }else {
             clause[idx++] = in_vars[i];
             clause[idx++] = out_vars[i];
           }
