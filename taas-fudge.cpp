@@ -25,10 +25,10 @@
 /* ============================================================================================================== */
 /* ============================================================================================================== */
 // printing witnesses supported for:
-// - DC-CO, DC-PR (returns admissible set containing query)
+// - DC-CO, DC-PR (returns complete set containing query)
 // - DC-ST (returns stable extension containing query)
 // - DS-ST (returns stable extension not containing query)
-// - DS-PR (returns some preferred extension that does not contain the query or an admissible set attacking the query)
+// - DS-PR (returns some preferred extension that does not contain the query)
 // - DS-ID, DC-ID (returns the ideal extension as witness in any case)
 #define PRINT_WITNESS 1
 /* ============================================================================================================== */
@@ -150,7 +150,7 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
 int main(int argc, char *argv[]){
   // General solver information
 	struct SolverInformation *info = taas__solverinformation(
-			"taas-fudge v3.2.6 (2022-11-28)\nMatthias Thimm (matthias.thimm@fernuni-hagen.de), Federico Cerutti (federico.cerutti@unibs.it), Mauro Vallati (m.vallati@hud.ac.uk)",
+			"taas-fudge v3.2.7 (2022-11-29)\nMatthias Thimm (matthias.thimm@fernuni-hagen.de), Federico Cerutti (federico.cerutti@unibs.it), Mauro Vallati (m.vallati@hud.ac.uk)",
 			"[i23,tgf]",
 			"[SE-GR,DC-GR,DS-GR,SE-CO,DC-CO,DS-CO,SE-PR,DC-PR,DS-PR,SE-ST,DC-ST,DS-ST,SE-ID,DC-ID,DS-ID,DC-SST,DS-SST,SE-SST,DC-STG,DS-STG,SE-STG]"
 		);

@@ -124,11 +124,13 @@ void add_comTestClauses(ExternalSolver & solver, int* in_vars, int* out_vars, st
       //argments cannot be in and out
       sat__addClause2(solver, -in_vars[i], -out_vars[i]);
       // add knowledge from grounded extension
-      if(bitset__get(grounded->in,i))
-       sat__addClause1(solver,in_vars[i]);
-      else if(bitset__get(grounded->out,i))
-       sat__addClause1(solver,out_vars[i]);
-
+      if(bitset__get(grounded->in,i)){
+         sat__addClause1(solver,in_vars[i]);
+         continue;
+      }else if(bitset__get(grounded->out,i)){
+         sat__addClause1(solver,out_vars[i]);
+         continue;
+      }
       idx = 1;
       idx2 = 1;
       clause[0] = -out_vars[i];
@@ -141,12 +143,8 @@ void add_comTestClauses(ExternalSolver & solver, int* in_vars, int* out_vars, st
           clause[idx++] = in_vars[(*(int*)node->data)];
           clause2[idx2++] = -out_vars[(*(int*)node->data)];
       }
-      if (idx > 1){
-         sat__addClause(solver,clause,idx);
-       }
-      if (idx2 > 1){
-         sat__addClause(solver,clause2,idx2);
-       }
+      sat__addClause(solver,clause,idx);
+      sat__addClause(solver,clause2,idx2);
   }
   free(clause);
   free(clause2);

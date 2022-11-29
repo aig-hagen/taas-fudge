@@ -109,11 +109,11 @@ int taas__solve(int argc,
 			}else if((strcmp(task->track,"DC-CO") == 0 ||
 								strcmp(task->track,"DC-PR") == 0 ||
 								strcmp(task->track,"DC-SST") == 0 ||
-								strcmp(task->track,"DC-STG") == 0 ||
 								strcmp(task->track,"DC-ID") == 0) && bitset__get(grounded->in,task->arg)){
 			  // argument is in the grounded extension
 				// answer is YES for credulous reasoning wrt. all semantics
-				// except possibly stable semantics
+				// except possibly stable semantics (as for stage semantics,
+        // since there may be other stage extensions, do not stop here)
 				printf("YES\n");
 				if(PRINT_WITNESS){
 					// for complete semantics, give grounded extension as witness
@@ -125,8 +125,6 @@ int taas__solve(int argc,
 							task->track = "SE-PR";
 						else if(strcmp(task->track,"DC-SST") == 0)
 							task->track = "SE-SST";
-						else if(strcmp(task->track,"DC-STG") == 0)
-							task->track = "SE-STG";
 						else if(strcmp(task->track,"DC-ID") == 0)
 							task->track = "SE-ID";
 						doSolve(task,aaf,grounded);

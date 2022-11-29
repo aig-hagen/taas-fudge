@@ -12,7 +12,7 @@
  */
 
 // the fudge approach for SE-PR
-void solve_sepr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
+void solve_sepr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded, struct RaSet* initial_admSet = NULL){
   ExternalSolver solver;
   sat__init(solver, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
   // initialise variables
@@ -34,11 +34,22 @@ void solve_sepr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
   }
   // add a clause imposing that at least one argument is in the set
   for(int i = 0; i < aaf->number_of_arguments; i++){
-    sat__add(solver,in_vars[i]);
+    if(initial_admSet == NULL || !raset__contains(initial_admSet,i))
+      sat__add(solver,in_vars[i]);
   }
   sat__add(solver,0);
   // the current set
-  struct RaSet* admSet = raset__init_empty(aaf->number_of_arguments);
+  struct RaSet* admSet;
+  if (initial_admSet == NULL){
+    admSet = raset__init_empty(aaf->number_of_arguments);
+  }else{
+     admSet = initial_admSet;
+     // add clauses imposing that at arguments in the initial admissible
+     // set are in
+     for(int i = 0; i < initial_admSet->number_of_elements; i++ ){
+       sat__addClause1(solver,in_vars[initial_admSet->elements_arr[i]]);
+     }
+  }
   // a temp set
   struct RaSet* temp = raset__init_empty(aaf->number_of_arguments);
   int sat;

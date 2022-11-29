@@ -12,8 +12,8 @@
  */
 
 void solve_dcco(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
-  ExternalSolver solver_admTest;
-  sat__init(solver_admTest, (2*aaf->number_of_arguments)+1,taas__task_get_value(task,"-sat"));
+  ExternalSolver solver_comTest;
+  sat__init(solver_comTest, (2*aaf->number_of_arguments)+1,taas__task_get_value(task,"-sat"));
   // initialise variables
   int* in_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));
   int* out_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));
@@ -22,12 +22,11 @@ void solve_dcco(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
     in_vars[i] = idx++;
     out_vars[i] = idx++;
   }
-  // add admissibility clauses
-  add_admTestClauses(solver_admTest,in_vars,out_vars,aaf,grounded);
-  // check if there is an admissible labelling setting task->arg IN
-  // (then it is also in a complete extension)
-  sat__assume(solver_admTest,in_vars[task->arg]);
-  int sat = sat__solve(solver_admTest);
+  // add completeness clauses
+  add_comTestClauses(solver_comTest,in_vars,out_vars,aaf,grounded);
+  // check if there is a complete labelling setting task->arg IN
+  sat__assume(solver_comTest,in_vars[task->arg]);
+  int sat = sat__solve(solver_comTest);
   if(sat == 20){
       printf("NO\n");
       return;
@@ -36,7 +35,7 @@ void solve_dcco(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
   if(PRINT_WITNESS){
     printf("w ");
     for(int i = 0; i < aaf->number_of_arguments; i++){
-      if(sat__get(solver_admTest,in_vars[i]) > 0){
+      if(sat__get(solver_comTest,in_vars[i]) > 0){
         printf("%d ",(i+1));
       }
     }

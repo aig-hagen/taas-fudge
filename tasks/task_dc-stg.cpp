@@ -80,7 +80,7 @@ void solve_dcstg(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
             // now check whether there is a set with smaller
             // undec set (that would then not contain the argument)
             sat = sat__solve(inner_solver);
-            if(sat == 20){
+            if(sat == 20){              
               // so we found a stage extension with the argument
               printf("YES\n");
               raset__print_i23(in_arg,aaf->ids2arguments);
