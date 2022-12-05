@@ -11,7 +11,7 @@
  ============================================================================
  */
 
-void solve_dcco(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
+bool solve_dcco(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded, bool do_print = true){
   ExternalSolver solver_comTest;
   sat__init(solver_comTest, (2*aaf->number_of_arguments)+1,taas__task_get_value(task,"-sat"));
   // initialise variables
@@ -28,11 +28,13 @@ void solve_dcco(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
   sat__assume(solver_comTest,in_vars[task->arg]);
   int sat = sat__solve(solver_comTest);
   if(sat == 20){
-      printf("NO\n");
-      return;
+      if(do_print)
+        printf("NO\n");
+      return false;
   }
-  printf("YES\n");
-  if(PRINT_WITNESS){
+  if(do_print)
+    printf("YES\n");
+  if(PRINT_WITNESS && do_print){
     printf("w ");
     for(int i = 0; i < aaf->number_of_arguments; i++){
       if(sat__get(solver_comTest,in_vars[i]) > 0){
@@ -41,7 +43,7 @@ void solve_dcco(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
     }
     printf("\n");
   }
-  return;
+  return true;
 }
 
 /* ============================================================================================================== */

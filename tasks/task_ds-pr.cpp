@@ -13,7 +13,7 @@
  */
 
 // the fudge approach for DS-PR
-void solve_dspr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
+bool solve_dspr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded, bool do_print = true){
   // solver_admTest is used for checking whether a single set can be extended
   //       to an admissible set
   // solver_attAdmTest is used for checking whether there is an admissible set
@@ -47,12 +47,14 @@ void solve_dspr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
   sat__assume(solver_admTest,in_vars[task->arg]);
   int sat = sat__solve(solver_admTest);
   if(sat == 20){
-      printf("NO\n");
-      if(PRINT_WITNESS){
-        // just print any preferred extension
-        solve_sepr(task,aaf,grounded);
+      if(do_print){
+        printf("NO\n");
+        if(PRINT_WITNESS){
+          // just print any preferred extension
+          solve_sepr(task,aaf,grounded);
+        }
       }
-      return;
+      return false;
   }
   for(int i = 0; i < aaf->number_of_arguments; i++){
     if(sat__get(solver_admTest,in_vars[i]) < 0){
@@ -64,22 +66,25 @@ void solve_dspr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
   sat__assume(solver_admTest,out_vars[task->arg]);
   sat = sat__solve(solver_admTest);
   if(sat == 10){
-      printf("NO\n");
-      // find preferred extension
-      struct RaSet* initial_admSet = raset__init_empty(aaf->number_of_arguments);
-      for(int i = 0; i < aaf->number_of_arguments; i++)
-        if(sat__get(solver_admTest,in_vars[i]) > 0)
-            raset__add(initial_admSet,i);
-      solve_sepr(task,aaf,grounded,initial_admSet);
-      return;
+      if(do_print){
+        printf("NO\n");
+        // find preferred extension
+        struct RaSet* initial_admSet = raset__init_empty(aaf->number_of_arguments);
+        for(int i = 0; i < aaf->number_of_arguments; i++)
+          if(sat__get(solver_admTest,in_vars[i]) > 0)
+              raset__add(initial_admSet,i);
+        solve_sepr(task,aaf,grounded,initial_admSet);
+      }
+      return false;
   }
   // main loop
   sat__addClause1(solver_attAdmTest,in_attacked_vars[task->arg]);
   while(true){
     sat = sat__solve(solver_attAdmTest);
     if(sat == 20){
-        printf("YES\n");
-        return;
+        if(do_print)
+          printf("YES\n");
+        return true;
     }
     sat__assume(solver_admTest,in_vars[task->arg]);
     for(int i = 0; i < aaf->number_of_arguments; i++){
@@ -89,6 +94,7 @@ void solve_dspr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
     }
     sat = sat__solve(solver_admTest);
     if(sat == 20){
+      if(do_print){
         printf("NO\n");
         if(PRINT_WITNESS){
           // we have to find a preferred extension as a witness, starting
@@ -96,10 +102,11 @@ void solve_dspr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
           struct RaSet* initial_admSet = raset__init_empty(aaf->number_of_arguments);
           for(int i = 0; i < aaf->number_of_arguments; i++)
             if(sat__get(solver_attAdmTest,in_vars[i]) > 0)
-                raset__add(initial_admSet,i);
+              raset__add(initial_admSet,i);
           solve_sepr(task,aaf,grounded,initial_admSet);
-          return;
+        }
       }
+      return false;
     }
     for(int i = 0; i < aaf->number_of_arguments; i++){
       if(sat__get(solver_admTest,in_vars[i]) < 0){

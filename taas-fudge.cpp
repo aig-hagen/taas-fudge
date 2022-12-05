@@ -84,8 +84,10 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
     exit(0);
   }
   // DS-PR
-  if(strcmp(task->track,"DS-PR") == 0)
-    return solve_dspr(task, aaf, grounded);
+  if(strcmp(task->track,"DS-PR") == 0){
+    solve_dspr(task, aaf, grounded);
+    return;
+  }
   // SE-ID
   if(strcmp(task->track,"SE-ID") == 0)
     return solve_seid(task, aaf, grounded);
@@ -93,17 +95,23 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
   if(strcmp(task->track,"EA-PR") == 0)
     return solve_eapr(task, aaf, grounded);
   // DC-CO and DC-PR
-  if(strcmp(task->track,"DC-CO") == 0 || strcmp(task->track,"DC-PR") == 0)
-    return solve_dcco(task, aaf, grounded);
+  if(strcmp(task->track,"DC-CO") == 0 || strcmp(task->track,"DC-PR") == 0){
+    solve_dcco(task, aaf, grounded);
+    return;
+  }
   // SE-ST
   if(strcmp(task->track,"SE-ST") == 0)
     return solve_sest(task, aaf, grounded);
   // DC-ST
-  if(strcmp(task->track,"DC-ST") == 0)
-    return solve_dcst(task, aaf, grounded);
+  if(strcmp(task->track,"DC-ST") == 0){
+    solve_dcst(task, aaf, grounded);
+    return;
+  }
   // DS-ST
-  if(strcmp(task->track,"DS-ST") == 0)
-    return solve_dsst(task, aaf, grounded);
+  if(strcmp(task->track,"DS-ST") == 0){
+    solve_dsst(task, aaf, grounded);
+    return;
+  }
   // DS-ID and DC-ID
   if(strcmp(task->track,"DS-ID") == 0 || strcmp(task->track,"DC-ID") == 0)
     if(PRINT_WITNESS){
@@ -113,7 +121,10 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
       else printf("NO\n");
       raset__print_i23(ideal,aaf->ids2arguments);
       raset__destroy(ideal);
-    }else return solve_dsid(task, aaf, grounded);
+    }else{
+      solve_dsid(task, aaf, grounded);
+      return;
+    }
   // SE-PR
   if(strcmp(task->track,"SE-PR") == 0)
     return solve_sepr(task, aaf, grounded);
@@ -124,17 +135,25 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
   if(strcmp(task->track,"SE-STG") == 0)
     return solve_sestg(task, aaf, grounded);
   // DC-SST
-  if(strcmp(task->track,"DC-SST") == 0)
-    return solve_dcsst(task, aaf, grounded);
+  if(strcmp(task->track,"DC-SST") == 0){
+    solve_dcsst(task, aaf, grounded);
+    return;
+  }
   // DS-SST
-  if(strcmp(task->track,"DS-SST") == 0)
-    return solve_dssst(task, aaf, grounded);
+  if(strcmp(task->track,"DS-SST") == 0){
+    solve_dssst(task, aaf, grounded);
+    return;
+  }
   // DC-STG
-  if(strcmp(task->track,"DC-STG") == 0)
-    return solve_dcstg(task, aaf, grounded);
+  if(strcmp(task->track,"DC-STG") == 0){
+    solve_dcstg(task, aaf, grounded);
+    return;
+  }
   // DS-STG
-  if(strcmp(task->track,"DS-STG") == 0)
-    return solve_dsstg(task, aaf, grounded);
+  if(strcmp(task->track,"DS-STG") == 0){
+    solve_dsstg(task, aaf, grounded);
+    return;
+  }
   // CE-ST
   if(strcmp(task->track,"CE-ST") == 0)
     return solve_cest(task, aaf, grounded);

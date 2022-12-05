@@ -168,36 +168,106 @@ public:
         if (semantics.empty()) return -1;
         if (assumptions.empty()) return -1;
 
-//        // create temporary apx file with current af
-//        string name = std::getenv("TMPDIR") + string("af.apx");
-//        ofstream file;
-//        file.open(name);
-//        for (int32_t argument : arguments) {
-//          file << "arg(" << argument << ").\n";
-//        }
-//        for (pair<int32_t,int32_t> attack : attacks) {
-//            file << "att(" << attack.first << "," << attack.second << ").\n";
-//        }
-//        file.close();
-//
-//        // call external solver on the corresponding task
-//        string task = credulous_mode ? "DC-" + semantics : "DS-" + semantics;
-//        string query = to_string(*assumptions.begin());
-//        assumptions.clear();
-//        string command = EXTERNAL_AF_SOLVER + string(" -p ") + task
-//                         + string(" -f ") + name + string(" -fo apx -a ") + query;
-//        FILE * pipe = popen(command.c_str(), "r");
-//        if (!pipe) return -1;
-//        array<char, 128> buffer;
-//        string result;
-//        while (fgets(buffer.data(), 128, pipe) != NULL) {
-//            result += buffer.data();
-//        }
-//        pclose(pipe);
-//        remove(name.c_str());
-//
-//        // parse the output
-//        result.erase(std::remove_if(result.begin(), result.end(), ::isspace), result.end());
+        // create AF object
+        struct AAF *aaf = (struct AAF*) malloc(sizeof(struct AAF));
+        aaf->number_of_arguments = arguments.size();
+        aaf->number_of_attacks = attacks.size();
+        aaf->ids2arguments = (char**) malloc(aaf->number_of_arguments * sizeof(char*));
+      	aaf->children = (GSList**) malloc(aaf->number_of_arguments * sizeof(GSList*));
+      	aaf->parents = (GSList**) malloc(aaf->number_of_arguments * sizeof(GSList*));
+        aaf->arguments2ids = (GHashTable*) g_hash_table_new(g_str_hash, g_str_equal);
+        aaf->number_of_attackers = (int*) malloc(aaf->number_of_arguments * sizeof(int));
+        aaf->initial = (struct BitSet*) malloc(sizeof(struct BitSet));
+  			bitset__init(aaf->initial, aaf->number_of_arguments);
+        // all bits initially one
+        bitset__setAll(aaf->initial);
+        aaf->loops = (struct BitSet*) malloc(sizeof(struct BitSet));
+        bitset__init(aaf->loops, aaf->number_of_arguments);
+        // all bits initially zero
+        bitset__unsetAll(aaf->loops);
+
+        // add arguments
+        int idx = 0;
+        for(int32_t arg: arguments){
+          char *arg1 = (char*) malloc(sizeof(char)*(int)std::log10(arg+1)+2);
+          sprintf(arg1, "%d", arg);
+          aaf->ids2arguments[idx] = arg1;
+          int* sidx = (int*) malloc(sizeof(int));
+          *sidx = idx;
+          g_hash_table_insert(aaf->arguments2ids,arg1,sidx);
+          aaf->children[idx] = NULL;
+          aaf->parents[idx] = NULL;
+          aaf->number_of_attackers[idx] = 0;
+          idx++;
+        }
+        // add attacks
+        for(pair<int32_t,int32_t> arg: attacks){
+        	int* idx1 = (int*) malloc(sizeof(int));
+          int* idx2 = (int*) malloc(sizeof(int));
+          *idx1 = arg.first;
+        	*idx2 = arg.second;
+          aaf->children[*idx1] = g_slist_prepend(aaf->children[*idx1], idx2);
+          aaf->parents[*idx2] = g_slist_prepend(aaf->parents[*idx2], idx1);
+          aaf->number_of_attackers[*idx2]++;
+          // if an argument is attacked, it is not initial
+        	bitset__unset(aaf->initial,*idx2);
+          // check for self-attacking arguments
+          if(*idx1 == *idx2){
+            bitset__set(aaf->loops,*idx1);
+          }
+        }
+
+        // the grounded extension
+        struct Labeling* grounded;
+        grounded = (struct Labeling*) malloc(sizeof(struct Labeling));
+  	    taas__lab_init(grounded,FALSE);
+  			taas__compute_grounded(aaf,grounded);
+
+        // TODO incorporate assumptions
+        // clear assumptions
+        assumptions.clear();
+        
+        // switch semantics and reasoning type
+        if(semantics == "CO"){
+            if(credulous_mode){
+              // TODO
+            }else{
+              // TODO
+            }
+        }
+        if(semantics == "PR"){
+            if(credulous_mode){
+              // TODO
+            }else{
+              // TODO
+            }
+        }
+        if(semantics == "ST"){
+            if(credulous_mode){
+              // TODO
+            }else{
+              // TODO
+            }
+        }
+        if(semantics == "SST"){
+            if(credulous_mode){
+              // TODO
+            }else{
+              // TODO
+            }
+        }
+        if(semantics == "STG"){
+            if(credulous_mode){
+                // TODO
+            }else{
+                // TODO
+            }
+        }
+        if(semantics == "ID"){
+            // reasoning mode does not matter
+            // TODO
+        }
+
 //        if (result == "YES") {
 //            return 10;
 //        } else if (result == "NO") {

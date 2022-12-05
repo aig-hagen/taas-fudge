@@ -11,7 +11,7 @@
  ============================================================================
  */
 
-void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
+bool solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded, bool do_print = true){
   ExternalSolver solver;
   sat__init(solver, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
   // initialise variables
@@ -28,11 +28,19 @@ void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
   // is also the only semi-stable extension
   if(all_grounded){
     sat__free(solver);
-    if(bitset__get(grounded->in,task->arg))
-      printf("YES\n");
-    else printf("NO\n");
-    printf("%s\n",taas__lab_print_i23(grounded,aaf));
-    return;
+    if(bitset__get(grounded->in,task->arg)){
+      if(do_print){
+        printf("YES\n");
+        printf("%s\n",taas__lab_print_i23(grounded,aaf));
+      }
+      return true;
+    }else{
+      if(do_print){
+        printf("NO\n");
+        printf("%s\n",taas__lab_print_i23(grounded,aaf));
+      }
+      return false;
+    }
   }
   // main loop
   while(true){
@@ -41,8 +49,9 @@ void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
       int sat = sat__solve(solver);
       if(sat == 20){
           // no admissible set containing arg could be found, answer is NO
-          printf("NO\n");
-          return;
+          if(do_print)
+            printf("NO\n");
+          return false;
       }
       // now maximise UNDEC of the previously found model
       // the current set of arguments that are not undecided
@@ -82,13 +91,15 @@ void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
             sat = sat__solve(inner_solver);
             if(sat == 20){
               // so we found a semi-stable extension with the argument
-              printf("YES\n");
-              raset__print_i23(in_arg,aaf->ids2arguments);
+              if(do_print){
+                printf("YES\n");
+                raset__print_i23(in_arg,aaf->ids2arguments);
+              }
               raset__destroy(notUndec);
               raset__destroy(in_arg);
               sat__free(solver);
               sat__free(inner_solver);
-              return;
+              return true;
             }
             // otherwise add a clause to solver imposing one of the UNDEC
             // arguments to be IN/OUT
@@ -124,7 +135,8 @@ void solve_dcsst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
       sat__free(inner_solver);
   }
   sat__free(solver);
-  return;
+  // this should not happen
+  return false;
 }
 
 /* ============================================================================================================== */

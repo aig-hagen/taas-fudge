@@ -11,7 +11,7 @@
  ============================================================================
  */
 
-void solve_dsst(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
+bool solve_dsst(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded, bool do_print = true){
   ExternalSolver solver;
   sat__init(solver, aaf->number_of_arguments+1,taas__task_get_value(task,"-sat"));
   // initialise variables
@@ -26,49 +26,56 @@ void solve_dsst(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
   int sat = sat__solve(solver);
   if(sat == 20){
       // as there is no stable extension, every argument is skeptically accepted
-      printf("YES\n");
-      return;
+      if(do_print)
+        printf("YES\n");
+      return true;
   }
   // check whether the argument is in the grounded extension
   // in that case, we are finished
   if(bitset__get(grounded->in,task->arg)){
-      printf("YES\n");
-      return;
+      if(do_print)
+        printf("YES\n");
+      return true;
   }
   // check whether the argument attacked by the grounded extension
   // in that case, we are finished and the above extension
   // already does not contain the argument
   if(bitset__get(grounded->out,task->arg)){
-      printf("NO\n");
-      if(PRINT_WITNESS){
-        printf("w ");
-        for(int i = 0; i < aaf->number_of_arguments; i++){
-          if(sat__get(solver,in_vars[i]) > 0){
-            printf("%d ",(i+1));
+      if(do_print){
+        printf("NO\n");
+        if(PRINT_WITNESS){
+          printf("w ");
+          for(int i = 0; i < aaf->number_of_arguments; i++){
+            if(sat__get(solver,in_vars[i]) > 0){
+              printf("%d ",(i+1));
+            }
           }
+          printf("\n");
         }
-        printf("\n");
       }
-      return;
+      return false;
   }
   // now assume that the argument is out
   sat__assume(solver,-in_vars[task->arg]);
   sat = sat__solve(solver);
   if(sat == 20){
-      printf("YES\n");
-      return;
+      if(do_print)
+        printf("YES\n");
+      return true;
   }
-  printf("NO\n");
-  if(PRINT_WITNESS){
-    printf("w ");
-    for(int i = 0; i < aaf->number_of_arguments; i++){
-      if(sat__get(solver,in_vars[i]) > 0){
-        printf("%d ",(i+1));
+  if(do_print){
+    printf("NO\n");
+    if(PRINT_WITNESS){
+      printf("w ");
+      for(int i = 0; i < aaf->number_of_arguments; i++){
+        if(sat__get(solver,in_vars[i]) > 0){
+          printf("%d ",(i+1));
+        }
       }
+      printf("\n");
     }
-    printf("\n");
   }
-  return;
+  return false;
 }
 
 /* ============================================================================================================== */

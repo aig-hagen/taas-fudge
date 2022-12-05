@@ -13,7 +13,7 @@
 
 // this is basically the fudge approach for SE-ID (with optimisations to stop earlier if argument status has
 // been determined)
-void solve_dsid(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
+bool solve_dsid(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded, bool do_print = true){
     // initialise variables
     int* in_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));
     int* out_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));
@@ -66,10 +66,11 @@ void solve_dsid(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
                     if (raset__contains(psc, *(int*)node->data)){
                         // if the argument is actually the argument under consideration we can terminate
                         if(*(int*)node->data == task->arg){
-                          printf("NO\n");
+                          if(do_print)
+                            printf("NO\n");
                           sat__free(solver_admTest);
                           raset__destroy(psc);
-                          return;
+                          return false;
                         }
                         raset__remove(psc, *(int*)node->data);
                     }
@@ -81,16 +82,18 @@ void solve_dsid(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
     sat__free(solver_admTest);
     if (onerunonly){
           // the argument under consideration is not in the ideal extension
-          printf("NO\n");
+          if(do_print)
+            printf("NO\n");
           raset__destroy(psc);
-          return;
+          return false;
     }
     // now compute the maximal admissible set in psc
     // if no argument is in the psc, the ideal extension is also empty
     if(psc->number_of_elements == 0){
-      printf("NO\n");
+      if(do_print)
+        printf("NO\n");
       raset__destroy(psc);
-      return;
+      return false;
     }
     //raset__print(psc,aaf->ids2arguments);
     // this will hold the ideal extension
@@ -103,10 +106,11 @@ void solve_dsid(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
         if(raset__contains(psc, *reinterpret_cast<int*>(node->data))){
           // if the argument is actually the argument under consideration we can terminate
           if(psc->elements_arr[i] == task->arg){
-            printf("NO\n");
+            if(do_print)
+              printf("NO\n");
             raset__destroy(psc);
             raset__destroy(ideal);
-            return;
+            return false;
           }
           isAttacked = true;
           break;
@@ -136,10 +140,11 @@ void solve_dsid(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
           if(!found_defender){
             // if the argument is actually the argument under consideration we can terminate
             if(arg == task->arg){
-              printf("NO\n");
+              if(do_print)
+                printf("NO\n");
               raset__destroy(psc);
               raset__destroy(ideal);
-              return;
+              return false;
             }
             keep_arg = false;
             break;
@@ -152,10 +157,11 @@ void solve_dsid(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
         }
       }
     }while(changed);
-    printf("YES\n");
+    if(do_print)
+      printf("YES\n");
     raset__destroy(psc);
     raset__destroy(ideal);
-    return;
+    return true;
 }
 
 /* ============================================================================================================== */
