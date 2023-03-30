@@ -1,4 +1,4 @@
-CADICALBUILD=/Users/mthimm/Documents/software/cpp/taas-fudge-v3.0/lib/cadical-1.3.1/build
+CADICALBUILD=/Users/mthimm/Shared/GIT/github-aig-taas-fudge/lib/cadical-1.3.1/build
 all:
 	$(MAKE) -C "$(CADICALBUILD)"
 clean:
@@ -11,7 +11,7 @@ clean:
 	  fi; \
 	  rm -rf "$(CADICALBUILD)"; \
 	fi
-	rm -f "/Users/mthimm/Documents/software/cpp/taas-fudge-v3.0/lib/cadical-1.3.1/makefile"
+	rm -f "/Users/mthimm/Shared/GIT/github-aig-taas-fudge/lib/cadical-1.3.1/makefile"
 test:
 	$(MAKE) -j1 -C "$(CADICALBUILD)" test
 cadical:
