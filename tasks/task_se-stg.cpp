@@ -13,8 +13,8 @@
 
 // the fudge approach for SE-STG
 void solve_sestg(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
-  ExternalSolver solver;
-  sat__init(solver, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
+  IpasirSolver solver;
+  sat__init(solver, 2*aaf->number_of_arguments);
   // initialise variables
   int* in_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));
   int* out_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));

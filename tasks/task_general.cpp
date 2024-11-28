@@ -14,7 +14,7 @@
 // adds clauses such that a model represents an admissible set
 // returns "true" iff all arguments are either in the grounded extension
 // or attacked by it
-bool add_admTestClauses(ExternalSolver & solver, int* in_vars, int* out_vars, struct AAF* aaf, struct Labeling* grounded){
+bool add_admTestClauses(IpasirSolver & solver, int* in_vars, int* out_vars, struct AAF* aaf, struct Labeling* grounded){
    bool all_grounded = true;
    for(int i = 0; i < aaf->number_of_arguments; i++){
        // argument i cannot both be in and out
@@ -47,7 +47,7 @@ bool add_admTestClauses(ExternalSolver & solver, int* in_vars, int* out_vars, st
 // adds clauses such that a model represents a conflict-free set
 // returns "true" iff all arguments are either in the grounded extension
 // or attacked by it
-bool add_cfTestClauses(ExternalSolver & solver, int* in_vars, int* out_vars, struct AAF* aaf, struct Labeling* grounded){
+bool add_cfTestClauses(IpasirSolver & solver, int* in_vars, int* out_vars, struct AAF* aaf, struct Labeling* grounded){
    bool all_grounded = true;
    for(int i = 0; i < aaf->number_of_arguments; i++){
        // argument i cannot both be in and out
@@ -71,7 +71,7 @@ bool add_cfTestClauses(ExternalSolver & solver, int* in_vars, int* out_vars, str
 }
 
 // adds clauses such that a model represents two sets where one attacks the other
-void add_attackClauses(ExternalSolver & solver, int* in_vars, int* in_attacked_vars, int attack_idx_offset, struct AAF* aaf, struct Labeling* grounded){
+void add_attackClauses(IpasirSolver & solver, int* in_vars, int* in_attacked_vars, int attack_idx_offset, struct AAF* aaf, struct Labeling* grounded){
   int* clause_oneattack = (int*) malloc((aaf->number_of_attacks) * sizeof(int));//one attack must be present
     int idx_attack = 0;
     int idx = attack_idx_offset;
@@ -89,7 +89,7 @@ void add_attackClauses(ExternalSolver & solver, int* in_vars, int* in_attacked_v
 }
 
 // adds clauses such that a model represents a stable extension
-void add_stbTestClauses(ExternalSolver & solver, int* in_vars, struct AAF* aaf, struct Labeling* grounded){
+void add_stbTestClauses(IpasirSolver & solver, int* in_vars, struct AAF* aaf, struct Labeling* grounded){
    // constraints for stability
    int* clause = (int*) malloc((1+aaf->number_of_arguments) * sizeof(int));
    for(int i = 0; i < aaf->number_of_arguments; i++){
@@ -115,7 +115,7 @@ void add_stbTestClauses(ExternalSolver & solver, int* in_vars, struct AAF* aaf, 
 }
 
 // adds clauses such that a model represents a complete extension
-void add_comTestClauses(ExternalSolver & solver, int* in_vars, int* out_vars, struct AAF* aaf, struct Labeling* grounded){
+void add_comTestClauses(IpasirSolver & solver, int* in_vars, int* out_vars, struct AAF* aaf, struct Labeling* grounded){
   // constraints for conflict-freeness, admissibility and completeness
   int* clause = (int*) malloc((1+aaf->number_of_arguments) * sizeof(int));
   int* clause2 = (int*) malloc((1+aaf->number_of_arguments) * sizeof(int));

@@ -13,8 +13,8 @@
 
 // the fudge approach for SE-PR
 void solve_sepr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded, struct RaSet* initial_admSet = NULL){
-  ExternalSolver solver;
-  sat__init(solver, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
+  IpasirSolver solver;
+  sat__init(solver, 2*aaf->number_of_arguments);
   // initialise variables
   int* in_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));
   int* out_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));

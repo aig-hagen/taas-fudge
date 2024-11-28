@@ -24,8 +24,8 @@ bool solve_dsid(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
     }
     // solver_admTest is used for determining admissible set that attack
     //        not already ruled out to be in the preferred super-core
-    ExternalSolver solver_admTest;
-    sat__init(solver_admTest, idx-1,taas__task_get_value(task,"-sat"));
+    IpasirSolver solver_admTest;
+    sat__init(solver_admTest, idx-1);
     // add admissibility clauses
     add_admTestClauses(solver_admTest,in_vars,out_vars,aaf,grounded);
     // set "psc" will eventually hold the preferred super-core

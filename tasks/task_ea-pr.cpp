@@ -31,8 +31,8 @@ void solve_eapr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
     // add admissibility clauses
     // solver_admTest_outer is used for determining admissible set that attack
     //        not already ruled out to be in the preferred super-core
-    ExternalSolver solver_admTest_outer;
-    sat__init(solver_admTest_outer, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
+    IpasirSolver solver_admTest_outer;
+    sat__init(solver_admTest_outer, 2*aaf->number_of_arguments);
     add_admTestClauses(solver_admTest_outer,in_vars,out_vars,aaf,grounded);
     // set "psc" will eventually contain the preferred super-core
     struct RaSet* psc = raset__init_empty(aaf->number_of_arguments);
@@ -150,8 +150,8 @@ void solve_eapr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
     // now compute the strong preferred super core by removing all arguments
     // from psc\acc that are not contained in an admissible set
     // add admissibility clauses
-    ExternalSolver solver_admTest2;
-    sat__init(solver_admTest2, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
+    IpasirSolver solver_admTest2;
+    sat__init(solver_admTest2, 2*aaf->number_of_arguments);
     add_admTestClauses(solver_admTest2,in_vars,out_vars,aaf,grounded);
     struct RaSet* spsc = raset__init_empty(aaf->number_of_arguments);
     while(true){
@@ -187,10 +187,10 @@ void solve_eapr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
       //       to an admissible set
       // solver_attAdmTest is used for checking whether there is an admissible set
       //       attacking another admissible set
-      ExternalSolver solver_admTest;
-      sat__init(solver_admTest, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
-      ExternalSolver solver_attAdmTest;
-      sat__init(solver_attAdmTest, 4*aaf->number_of_arguments+aaf->number_of_attacks,taas__task_get_value(task,"-sat"));
+      IpasirSolver solver_admTest;
+      sat__init(solver_admTest, 2*aaf->number_of_arguments);
+      IpasirSolver solver_attAdmTest;
+      sat__init(solver_attAdmTest, 4*aaf->number_of_arguments+aaf->number_of_attacks);
       // add admissibility clauses
       add_admTestClauses(solver_admTest,in_vars,out_vars,aaf,grounded);
       add_admTestClauses(solver_attAdmTest,in_vars,out_vars,aaf,grounded);

@@ -12,8 +12,8 @@
  */
 
 void solve_sest(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
-  ExternalSolver solver;
-  sat__init(solver, aaf->number_of_arguments+1,taas__task_get_value(task,"-sat"));
+  IpasirSolver solver;
+  sat__init(solver, aaf->number_of_arguments+1);
   // initialise variables
   int* in_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));
   int idx = 1;
@@ -32,7 +32,7 @@ void solve_sest(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
   printf("w ");
   for(int i = 0; i < aaf->number_of_arguments; i++){
     if(sat__get(solver,in_vars[i]) > 0)
-      printf("%s ",aaf->ids2arguments[i]);          
+      printf("%s ",aaf->ids2arguments[i]);
   }
   printf("\n");
   return;

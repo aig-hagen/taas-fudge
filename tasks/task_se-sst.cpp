@@ -12,9 +12,9 @@
  */
 
 // the fudge approach for SE-SST
-void solve_sesst(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){    
-  ExternalSolver solver;
-  sat__init(solver, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
+void solve_sesst(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded){
+  IpasirSolver solver;
+  sat__init(solver, 2*aaf->number_of_arguments);
   // initialise variables
   int* in_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));
   int* out_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));

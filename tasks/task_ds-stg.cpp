@@ -12,8 +12,8 @@
  */
 
 bool solve_dsstg(struct TaskSpecification *task, struct AAF* aaf, struct Labeling* grounded, bool do_print = true){
-  ExternalSolver solver;
-  sat__init(solver, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
+  IpasirSolver solver;
+  sat__init(solver, 2*aaf->number_of_arguments);
   // initialise variables
   int* in_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));
   int* out_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));
@@ -60,8 +60,8 @@ bool solve_dsstg(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
       struct RaSet* in_arg = raset__init_empty(aaf->number_of_arguments);
       // a temp set
       struct RaSet* temp = raset__init_empty(aaf->number_of_arguments);
-      ExternalSolver inner_solver;
-      sat__init(inner_solver, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
+      IpasirSolver inner_solver;
+      sat__init(inner_solver, 2*aaf->number_of_arguments);
       add_cfTestClauses(inner_solver,in_vars,out_vars,aaf,grounded);
       // add clauses imposing that arguments IN/OUT in the previously
       // found model are again IN/OUT

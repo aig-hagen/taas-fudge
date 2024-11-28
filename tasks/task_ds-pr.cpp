@@ -18,10 +18,10 @@ bool solve_dspr(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
   //       to an admissible set
   // solver_attAdmTest is used for checking whether there is an admissible set
   //       attacking another admissible set
-  ExternalSolver solver_admTest;
-  sat__init(solver_admTest, 2*aaf->number_of_arguments,taas__task_get_value(task,"-sat"));
-  ExternalSolver solver_attAdmTest;
-  sat__init(solver_attAdmTest, 4*aaf->number_of_arguments+aaf->number_of_attacks,taas__task_get_value(task,"-sat"));
+  IpasirSolver solver_admTest;
+  sat__init(solver_admTest, 2*aaf->number_of_arguments);
+  IpasirSolver solver_attAdmTest;
+  sat__init(solver_attAdmTest, 4*aaf->number_of_arguments+aaf->number_of_attacks);
   // initialise variables
   int* in_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));
   int* out_vars = (int*) malloc(aaf->number_of_arguments * sizeof(int));
