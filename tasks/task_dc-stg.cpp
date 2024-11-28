@@ -58,8 +58,6 @@ bool solve_dcstg(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
       struct RaSet* notUndec = raset__init_empty(aaf->number_of_arguments);
       // the previous set of arguments in the extension
       struct RaSet* in_arg = raset__init_empty(aaf->number_of_arguments);
-      // a temp set
-      struct RaSet* temp = raset__init_empty(aaf->number_of_arguments);
       IpasirSolver inner_solver;
       sat__init(inner_solver, 2*aaf->number_of_arguments);
       add_cfTestClauses(inner_solver,in_vars,out_vars,aaf,grounded);

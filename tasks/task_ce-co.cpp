@@ -30,7 +30,7 @@ void solve_ceco(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
   int* clause = (int*) malloc(aaf->number_of_arguments * sizeof(int));
   while(true){
     // check if there is a complete extension
-    int sat = sat__solve(solver);
+    sat = sat__solve(solver);
     if(sat == 10){
       co_cnt++;
       // add constraint for next iteration

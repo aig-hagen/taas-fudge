@@ -118,7 +118,6 @@ void raset__print(struct RaSet* set, char** ids2arguments){
 // prints the set using the given map to strings in ICCMA23 style
 void raset__print_i23(struct RaSet* set, char** ids2arguments){
   printf("w ");
-  char isFirst = TRUE;
   for(int i = 0; i < set->number_of_elements; i++)
     printf("%s ", ids2arguments[set->elements_arr[i]]);
   printf("\n");

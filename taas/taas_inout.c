@@ -230,8 +230,8 @@ void taas__readFile_i23(char* path, struct AAF* aaf){
   }
   // now do the actual parsing
   aaf->ids2arguments = (char**) malloc(aaf->number_of_arguments * sizeof(char*));
-	aaf->children = (GSList**) malloc(aaf->number_of_arguments * sizeof(GSList*));
-	aaf->parents = (GSList**) malloc(aaf->number_of_arguments * sizeof(GSList*));
+  aaf->children = (GSList**) malloc(aaf->number_of_arguments * sizeof(GSList*));
+  aaf->parents = (GSList**) malloc(aaf->number_of_arguments * sizeof(GSList*));
   aaf->arguments2ids = (GHashTable*) g_hash_table_new(g_str_hash, g_str_equal);
   aaf->number_of_attackers = (int*) malloc(aaf->number_of_arguments * sizeof(int));
   aaf->number_of_attacks = 0;
@@ -246,7 +246,7 @@ void taas__readFile_i23(char* path, struct AAF* aaf){
   // initialise arguments
   for(int idx = 0; idx < aaf->number_of_arguments; idx++){
     char *arg1 = (char*) malloc(sizeof(char)*(int)std::log10(idx+1)+2);
-    sprintf(arg1, "%d", idx+1);
+    snprintf(arg1, (int)std::log10(idx+1)+2, "%d", idx+1);
     aaf->ids2arguments[idx] = arg1;
     int* sidx = (int*) malloc(sizeof(int));
     *sidx = idx;

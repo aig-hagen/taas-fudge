@@ -135,7 +135,6 @@ void add_comTestClauses(IpasirSolver & solver, int* in_vars, int* out_vars, stru
       idx2 = 1;
       clause[0] = -out_vars[i];
       clause2[0] = in_vars[i];
-      char emptyclause = TRUE;
       // missing: if all parents out then argument in
       for(GSList* node = aaf->parents[i]; node != NULL; node = node->next){
           sat__addClause2(solver,-in_vars[i],out_vars[(*(int*)node->data)]);

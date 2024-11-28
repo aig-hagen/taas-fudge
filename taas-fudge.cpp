@@ -5,7 +5,7 @@
  ============================================================================
  Name        : taas-fudge.cpp
  Author      : Matthias Thimm
- Version     : 1.0
+ Version     : 3.3.1
  Copyright   : GPL3
  Description : The taas-fudge solver for abstract argumentation.
 
@@ -108,7 +108,7 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
     return;
   }
   // DS-ID and DC-ID
-  if(strcmp(task->track,"DS-ID") == 0 || strcmp(task->track,"DC-ID") == 0)
+  if(strcmp(task->track,"DS-ID") == 0 || strcmp(task->track,"DC-ID") == 0){
     if(PRINT_WITNESS){
       struct RaSet* ideal = compute_ideal(task,aaf,grounded);
       if(raset__contains(ideal,task->arg))
@@ -120,6 +120,7 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
       solve_dsid(task, aaf, grounded);
       return;
     }
+  }
   // SE-PR
   if(strcmp(task->track,"SE-PR") == 0)
     return solve_sepr(task, aaf, grounded);
@@ -164,9 +165,9 @@ void solve_switch(struct TaskSpecification *task, struct AAF* aaf, struct Labeli
 int main(int argc, char *argv[]){
   // General solver information
 	struct SolverInformation *info = taas__solverinformation(
-			"taas-fudge v3.3.1 (2024-11-28)\nMatthias Thimm (matthias.thimm@fernuni-hagen.de), Federico Cerutti (federico.cerutti@unibs.it), Mauro Vallati (m.vallati@hud.ac.uk)",
-			"[i23,tgf]",
-			"[SE-GR,DC-GR,DS-GR,SE-CO,DC-CO,DS-CO,SE-PR,DC-PR,DS-PR,SE-ST,DC-ST,DS-ST,SE-ID,DC-ID,DS-ID,DC-SST,DS-SST,SE-SST,DC-STG,DS-STG,SE-STG]"
+			(char*) "taas-fudge v3.3.2 (2024-11-28)\nMatthias Thimm (matthias.thimm@fernuni-hagen.de), Federico Cerutti (federico.cerutti@unibs.it), Mauro Vallati (m.vallati@hud.ac.uk)",
+			(char*) "[i23,tgf]",
+			(char*) "[SE-GR,DC-GR,DS-GR,SE-CO,DC-CO,DS-CO,SE-PR,DC-PR,DS-PR,SE-ST,DC-ST,DS-ST,SE-ID,DC-ID,DS-ID,DC-SST,DS-SST,SE-SST,DC-STG,DS-STG,SE-STG]"
 		);
   return taas__solve(argc,argv,info,solve_switch);
 }

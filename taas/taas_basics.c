@@ -122,11 +122,11 @@ int taas__solve(int argc,
 					else{
 						// for all other semantics, just compute any extension
 						if(strcmp(task->track,"DC-PR") == 0)
-							task->track = "SE-PR";
+							task->track = (char*) "SE-PR";
 						else if(strcmp(task->track,"DC-SST") == 0)
-							task->track = "SE-SST";
+							task->track = (char*) "SE-SST";
 						else if(strcmp(task->track,"DC-ID") == 0)
-							task->track = "SE-ID";
+							task->track = (char*) "SE-ID";
 						doSolve(task,aaf,grounded);
 					}
 				}
@@ -157,11 +157,11 @@ int taas__solve(int argc,
 				if(PRINT_WITNESS){
 						// just compute any extension
 						if(strcmp(task->track,"DS-PR") == 0)
-							task->track = "SE-PR";
+							task->track = (char*) "SE-PR";
 						else if(strcmp(task->track,"DS-SST") == 0)
-							task->track = "SE-SST";
+							task->track = (char*) "SE-SST";
 						else if(strcmp(task->track,"DS-ID") == 0)
-							task->track = "SE-ID";
+							task->track = (char*) "SE-ID";
 						doSolve(task,aaf,grounded);
 				}
 			}else

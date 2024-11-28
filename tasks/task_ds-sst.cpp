@@ -56,8 +56,6 @@ bool solve_dssst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
       struct RaSet* notUndec = raset__init_empty(aaf->number_of_arguments);
       // the previous set of arguments in the extension
       struct RaSet* in_arg = raset__init_empty(aaf->number_of_arguments);
-      // a temp set
-      struct RaSet* temp = raset__init_empty(aaf->number_of_arguments);
       IpasirSolver inner_solver;
       sat__init(inner_solver, 2*aaf->number_of_arguments);
       add_admTestClauses(inner_solver,in_vars,out_vars,aaf,grounded);
@@ -113,13 +111,21 @@ bool solve_dssst(struct TaskSpecification *task, struct AAF* aaf, struct Labelin
         // add another clause imposing even less UNDEC
         idx = 0;
         raset__reset(in_arg);
+        struct RaSet* vars_to_add = raset__init_empty(aaf->number_of_arguments);
+        struct RaSet* vars_to_add_in = raset__init_empty(aaf->number_of_arguments);
         for(int i = 0; i < aaf->number_of_arguments; i++){
-          if(sat__get(inner_solver,in_vars[i]) > 0 || sat__get(inner_solver,out_vars[i]) > 0){
+            if(sat__get(inner_solver,in_vars[i]) > 0 || sat__get(inner_solver,out_vars[i]) > 0)
+                raset__add(vars_to_add,i);
+            if(sat__get(inner_solver,in_vars[i]) > 0)
+                raset__add(vars_to_add_in,i);
+        }
+        for(int i = 0; i < aaf->number_of_arguments; i++){
+          if(raset__contains(vars_to_add,i)){
             if(!raset__contains(notUndec,i) && task->arg != i){
               sat__addClause2(inner_solver,in_vars[i],out_vars[i]);
               raset__add(notUndec,i);
             }
-            if(sat__get(inner_solver,in_vars[i]) > 0)
+            if(raset__contains(vars_to_add_in, i))
               raset__add(in_arg,i);
           }else {
             clause[idx++] = in_vars[i];

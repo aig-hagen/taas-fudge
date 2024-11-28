@@ -28,7 +28,7 @@ void solve_cest(struct TaskSpecification *task, struct AAF* aaf, struct Labeling
   int* clause = (int*) malloc(aaf->number_of_arguments * sizeof(int));
   while(true){
     // check if there is a stable extension
-    int sat = sat__solve(solver);
+    sat = sat__solve(solver);
     if(sat == 10){
       stb_cnt++;
       // add constraint for next iteration
